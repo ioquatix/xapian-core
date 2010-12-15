@@ -6,7 +6,7 @@ def system!(cmd)
 	system(cmd) or raise
 end
 
-ver = '1.1.3'
+ver = '1.2.3'
 core = "xapian-core-#{ver}"
 bindings = "xapian-bindings-#{ver}"
 xapian_config = "#{Dir.pwd}/#{core}/xapian-config"
@@ -16,26 +16,27 @@ task :default do
 		system! "tar -xzvf #{x}.tar.gz"
 	end
 
-	prefix = Dir.pwd
+	prefix = File.dirname(Dir.pwd)
+	puts "prefix = #{prefix}"
+	
 	ENV['LDFLAGS'] = "-R#{prefix}/lib"
-
-	system! "mkdir -p lib"
-
+	
 	Dir.chdir core do
 		system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix}"
-		system! "make clean all"
-		system! "cp -r .libs/* ../lib/"
+		system! "make clean all install"
+		
+		# Alternatively to only install libraries
+		# system! "cp -r .libs/* ../lib/"
 	end
-
-	
 
 	Dir.chdir bindings do
 		ENV['RUBY'] ||= "#{c['bindir']}/#{c['RUBY_INSTALL_NAME']}"
 		ENV['XAPIAN_CONFIG'] = xapian_config
+		
 		system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix} --with-ruby"
 		system! "make clean all"
+		
+		system! "cp -r ./ruby/.libs/_xapian.* #{prefix}/lib"
+		system! "cp ./ruby/xapian.rb #{prefix}/lib"
 	end
-
-	system! "cp -r #{bindings}/ruby/.libs/_xapian.* lib"
-	system! "cp #{bindings}/ruby/xapian.rb lib"
 end
