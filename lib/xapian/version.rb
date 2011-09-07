@@ -14,11 +14,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module Xapian
-  module VERSION #:nodoc:
-    MAJOR = 1
-    MINOR = 2
-    TINY  = 3
+	module VERSION #:nodoc:
+		MAJOR = 1
+		MINOR = 2
+		TINY  = 7
+		REV   = 1
 
-    STRING = [MAJOR, MINOR, TINY].join('.')
-  end
+		STRING = [MAJOR, MINOR, TINY, REV].join('.')
+	end
 end
