@@ -6,20 +6,20 @@ def system!(cmd)
 	system(cmd) or raise
 end
 
-ver = '1.2.7'
+ver = '1.2.19'
 core = "xapian-core-#{ver}"
 bindings = "xapian-bindings-#{ver}"
 xapian_config = "#{Dir.pwd}/#{core}/xapian-config"
 
 task :default do
 	[core,bindings].each do |x|
-		system! "tar -xzvf #{x}.tar.gz"
+		system! "tar -xzvf #{x}.tar.xz"
 	end
 
 	prefix = File.dirname(Dir.pwd)
 	puts "prefix = #{prefix}"
 	
-	ENV['LDFLAGS'] = "-R#{prefix}/lib"
+	#ENV['LDFLAGS'] = "-R#{prefix}/lib"
 	
 	Dir.chdir core do
 		system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix}"
