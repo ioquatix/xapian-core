@@ -13,7 +13,7 @@ xapian_config = "#{Dir.pwd}/#{core}/xapian-config"
 
 task :default do
 	[core,bindings].each do |x|
-		system! "tar -xzvf #{x}.tar.xz"
+		system! "tar -xvf #{x}.tar.xz"
 	end
 
 	prefix = File.dirname(Dir.pwd)
