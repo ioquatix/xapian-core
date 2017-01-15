@@ -6,37 +6,49 @@ def system!(cmd)
 	system(cmd) or raise
 end
 
-ver = '1.2.20'
+ver = '1.4.2'
 core = "xapian-core-#{ver}"
 bindings = "xapian-bindings-#{ver}"
-xapian_config = "#{Dir.pwd}/#{core}/xapian-config"
+xapian_config = "#{__dir__}/#{core}/xapian-config"
+prefix = ENV['PREFIX'] || File.dirname(__dir__)
+puts "prefix = #{prefix}"
+#ENV['LDFLAGS'] = "-R#{prefix}/lib"
+docdir = File.join(prefix, "share/doc/xapian")
 
-task :default do
+namespace :build do
+	task :core do
+		Dir.chdir core do
+			system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix}"
+			system! "make all install"
+			
+			# Alternatively to only install libraries
+			# system! "cp -r .libs/* ../lib/"
+		end
+	end
+
+	task :bindings do
+		Dir.chdir bindings do
+			ENV['RUBY'] ||= "#{c['bindir']}/#{c['RUBY_INSTALL_NAME']}"
+			ENV['XAPIAN_CONFIG'] = xapian_config
+			
+			system! "cp ../Makefile.am-ruby ./ruby/Makefile.am"
+			
+			system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix} --with-ruby"
+			
+			system! "make all"
+			
+			system! "cp -LR ./ruby/.libs/_xapian.* #{prefix}/lib"
+			system! "cp ./ruby/xapian.rb #{prefix}/lib"
+		end
+	end
+	
+	task :all => [:core, :bindings]
+end
+
+task :extract do
 	[core,bindings].each do |x|
 		system! "tar -xvf #{x}.tar.xz"
 	end
-
-	prefix = File.dirname(Dir.pwd)
-	puts "prefix = #{prefix}"
-	
-	#ENV['LDFLAGS'] = "-R#{prefix}/lib"
-	
-	Dir.chdir core do
-		system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix}"
-		system! "make clean all install"
-		
-		# Alternatively to only install libraries
-		# system! "cp -r .libs/* ../lib/"
-	end
-
-	Dir.chdir bindings do
-		ENV['RUBY'] ||= "#{c['bindir']}/#{c['RUBY_INSTALL_NAME']}"
-		ENV['XAPIAN_CONFIG'] = xapian_config
-		
-		system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix} --with-ruby"
-		system! "make clean all"
-		
-		system! "cp -LR ./ruby/.libs/_xapian.* #{prefix}/lib"
-		system! "cp ./ruby/xapian.rb #{prefix}/lib"
-	end
 end
+
+task :default => [:extract, 'build:all']
