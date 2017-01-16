@@ -30,9 +30,7 @@ namespace :build do
 		Dir.chdir bindings do
 			ENV['RUBY'] ||= "#{c['bindir']}/#{c['RUBY_INSTALL_NAME']}"
 			ENV['XAPIAN_CONFIG'] = xapian_config
-
-			system! "cp ../Makefile.am-ruby ./ruby/Makefile.am"
-
+			
 			system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix} --with-ruby"
 
 			system! "make all"
