@@ -20,7 +20,7 @@ namespace :build do
 		Dir.chdir core do
 			system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix}"
 			system! "make all install"
-			
+
 			# Alternatively to only install libraries
 			# system! "cp -r .libs/* ../lib/"
 		end
@@ -30,19 +30,26 @@ namespace :build do
 		Dir.chdir bindings do
 			ENV['RUBY'] ||= "#{c['bindir']}/#{c['RUBY_INSTALL_NAME']}"
 			ENV['XAPIAN_CONFIG'] = xapian_config
-			
+
 			system! "cp ../Makefile.am-ruby ./ruby/Makefile.am"
-			
+
 			system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix} --with-ruby"
-			
+
 			system! "make all"
-			
+
 			system! "cp -LR ./ruby/.libs/_xapian.* #{prefix}/lib"
 			system! "cp ./ruby/xapian.rb #{prefix}/lib"
 		end
 	end
-	
-	task :all => [:core, :bindings]
+
+  desc 'Remove sources files and strip libraries'
+  task :cleanup do
+    system! "rm -rfv #{core} #{bindings} ../include"
+    system! "strip --strip-unneeded ../lib/_xapian.so ../lib/libxapian.so"
+    system! "strip --strip-all ../bin/*"
+  end
+
+	task :all => [:core, :bindings, :cleanup]
 end
 
 task :extract do
