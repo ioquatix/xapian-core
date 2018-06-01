@@ -6,7 +6,7 @@ def system!(cmd)
 	system(cmd) or raise
 end
 
-ver = '1.4.2'
+ver = '1.4.5'
 core = "xapian-core-#{ver}"
 bindings = "xapian-bindings-#{ver}"
 xapian_config = "#{__dir__}/#{core}/xapian-config"
@@ -20,7 +20,7 @@ namespace :build do
 		Dir.chdir core do
 			system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix}"
 			system! "make all install"
-			
+
 			# Alternatively to only install libraries
 			# system! "cp -r .libs/* ../lib/"
 		end
@@ -30,19 +30,34 @@ namespace :build do
 		Dir.chdir bindings do
 			ENV['RUBY'] ||= "#{c['bindir']}/#{c['RUBY_INSTALL_NAME']}"
 			ENV['XAPIAN_CONFIG'] = xapian_config
-			
+
 			system! "cp ../Makefile.am-ruby ./ruby/Makefile.am"
-			
+
 			system! "./configure --prefix=#{prefix} --exec-prefix=#{prefix} --with-ruby"
-			
+
 			system! "make all"
-			
+
 			system! "cp -LR ./ruby/.libs/_xapian.* #{prefix}/lib"
 			system! "cp ./ruby/xapian.rb #{prefix}/lib"
 		end
 	end
-	
-	task :all => [:core, :bindings]
+
+  desc 'Remove sources files and strip libraries'
+  task :cleanup do
+    system! "rm -rfv #{core} #{bindings} ../include"
+    system! "strip --strip-unneeded ../lib/_xapian.so ../lib/libxapian.so"
+    # we could use globbing but xapian-config is a shell script and make
+    # strip fail
+    %w[copydatabase quest simpleexpand simpleindex simplesearch
+       xapian-check xapian-compact xapian-delve xapian-metadata
+       xapian-progsrv xapian-replicate xapian-replicate-server
+       xapian-tcpsrv].each do |bin|
+
+      system! "strip --strip-all ../bin/#{bin}"
+    end
+  end
+
+	task :all => [:core, :bindings, :cleanup]
 end
 
 task :extract do

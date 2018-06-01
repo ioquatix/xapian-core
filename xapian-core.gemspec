@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 	spec.email         = ["samuel.williams@oriontransfer.co.nz"]
 	spec.summary       = %q{Provides Xapian libraries and Ruby bindings.}
 	spec.homepage      = ""
-	spec.license       = "GPLv3"
+	spec.license       = "GPL-3.0"
 
 	spec.files         = `git ls-files -z`.split("\x0")
 	spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
