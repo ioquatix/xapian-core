@@ -1,5 +1,5 @@
 module Xapian
 	module Core
-		VERSION = "1.4.5"
+		VERSION = '1.4.6'.freeze
 	end
 end
