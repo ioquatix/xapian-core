@@ -40,20 +40,20 @@ namespace :build do
 		end
 	end
 
-  desc 'Remove sources files and strip libraries'
-  task :cleanup do
-    system! "rm -rfv #{core} #{bindings} ../include"
-    system! "strip --strip-unneeded ../lib/_xapian.so ../lib/libxapian.so"
-    # we could use globbing but xapian-config is a shell script and make
-    # strip fail
-    %w[copydatabase quest simpleexpand simpleindex simplesearch
-       xapian-check xapian-compact xapian-delve xapian-metadata
-       xapian-progsrv xapian-replicate xapian-replicate-server
-       xapian-tcpsrv].each do |bin|
+	desc 'Remove sources files and strip libraries'
+	task :cleanup do
+		system! "rm -rfv #{core} #{bindings} ../include"
+		system! "strip --strip-unneeded ../lib/_xapian.so ../lib/libxapian.so"
+		# we could use globbing but xapian-config is a shell script and make
+		# strip fail
+		%w[copydatabase quest simpleexpand simpleindex simplesearch
+			 xapian-check xapian-compact xapian-delve xapian-metadata
+			 xapian-progsrv xapian-replicate xapian-replicate-server
+			 xapian-tcpsrv].each do |bin|
 
-      system! "strip --strip-all ../bin/#{bin}"
-    end
-  end
+			system! "strip --strip-all ../bin/#{bin}"
+		end
+	end
 
 	task :all => [:core, :bindings, :cleanup]
 end
